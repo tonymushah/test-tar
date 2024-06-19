@@ -5,4 +5,5 @@ edition = "2021"
 
 [dependencies]
 tar = "0.4.41"
+tempfile = "3.10.1"
 zstd = "0.13.1"
