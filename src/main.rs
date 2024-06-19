@@ -1,9 +1,9 @@
 use std::{
     fs::File,
-    io::{BufRead, BufReader, BufWriter, Read},
+    io::{BufReader, BufWriter, Read},
 };
 
-use tar::{Archive, Builder, Unpacked};
+use tar::{Archive, Builder};
 use tempfile::tempdir_in;
 use zstd::{Decoder, Encoder};
 
