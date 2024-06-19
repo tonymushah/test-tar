@@ -9,6 +9,9 @@ fn first() {
     arch_builder
         .append_file("texts/some.txt", &mut some)
         .unwrap();
+    arch_builder
+        .append_file("texts/some2.txt", &mut some)
+        .unwrap();
     arch_builder.finish().unwrap();
 }
 
