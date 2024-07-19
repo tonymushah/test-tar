@@ -1,10 +1,9 @@
 use std::{
     fs::File,
-    io::{BufReader, BufWriter, Read},
+    io::{BufReader, BufWriter, Read, Seek, SeekFrom},
 };
 
 use tar::{Archive, Builder};
-use tempfile::tempdir_in;
 use zstd::{Decoder, Encoder};
 
 fn first() {
@@ -24,10 +23,10 @@ fn first() {
     arch_builder.finish().unwrap();
 }
 
-fn second() {
-    let some = Decoder::new(BufReader::new(File::open("some.tar.ztd").unwrap())).unwrap();
+fn seek_file<R: Read>(file: R) {
+    let some = Decoder::new(file).unwrap();
     let mut arch = Archive::new(some);
-    for mut entry in arch.entries().unwrap().flatten() {
+    for entry in arch.entries().unwrap().flatten() {
         let filename: String = entry
             .path()
             .unwrap()
@@ -38,20 +37,22 @@ fn second() {
             .unwrap()
             .into();
         println!("{}, {}", filename, entry.header().size().unwrap());
-        let tempdir = tempdir_in(".").unwrap();
-        let temp_file = {
-            let path = tempdir.path().join(filename);
-            entry.unpack(&path).unwrap();
-            File::open(path).unwrap()
-        };
         let mut content = String::new();
-        if let Some(err) = BufReader::new(temp_file).read_to_string(&mut content).err() {
+        if let Some(err) = BufReader::new(entry).read_to_string(&mut content).err() {
             eprintln!("{err}");
         }
         println!("{content}");
 
-        tempdir.close().unwrap();
     }
+}
+
+fn second() {
+    let mut file = BufReader::new(File::open("some.tar.ztd").unwrap());
+    println!("first seek");
+    seek_file(&mut file);
+    println!("second seek");
+    file.seek(SeekFrom::Start(0)).unwrap();
+    seek_file(&mut file);
 }
 
 fn main() {
